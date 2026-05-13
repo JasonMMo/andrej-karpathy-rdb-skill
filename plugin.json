@@ -1,0 +1,14 @@
+{
+  "name": "andrej-karpathy-rdb-skill",
+  "version": "0.1.0",
+  "description": "Karpathy LLM Wiki 패턴을 RDB 비즈니스-도메인-엔티티 컨텍스트에 이식한 플러그인. markdown wiki + _blueprint.yaml 산출",
+  "author": "business-fullstack-creater",
+  "keywords": ["claude-code", "plugin", "rdb", "schema-design", "karpathy", "wiki", "korean"],
+  "claudeCode": {
+    "minVersion": "2.0.0"
+  },
+  "entries": {
+    "commands": ".claude/commands/",
+    "skills": ".claude/skills/"
+  }
+}
