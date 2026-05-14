@@ -6,8 +6,8 @@ domain: [고객관리]
 table: customer
 status: draft
 columns:
-  - { name: id,    type: bigserial,    pk: true, null: false }
-  - { name: email, type: varchar(255), null: false, unique: true }
+  - { name: id,    type: bigserial,    pk: true, nullable: false }
+  - { name: email, type: varchar(255), nullable: false, unique: true }
 indexes:
   - { name: ix_customer_email, columns: [email], unique: true }
 relations:

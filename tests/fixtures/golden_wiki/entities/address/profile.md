@@ -6,8 +6,8 @@ domain: [고객관리]
 table: address
 status: draft
 columns:
-  - { name: id,          type: bigserial, pk: true, null: false }
-  - { name: customer_id, type: bigint,    null: false }
+  - { name: id,          type: bigserial, pk: true, nullable: false }
+  - { name: customer_id, type: bigint,    nullable: false }
 ---
 
 # address
