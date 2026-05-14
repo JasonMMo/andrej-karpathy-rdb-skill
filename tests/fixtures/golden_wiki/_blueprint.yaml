@@ -1,0 +1,56 @@
+version: 1
+generated_at: '2026-05-14T05:39:15Z'
+project: 고객관리
+domains:
+- name: 고객관리
+  description: ''
+  entities:
+  - address
+  - customer
+entities:
+- name: address
+  table: address
+  schema: public
+  columns:
+  - name: id
+    type: bigserial
+    pk: true
+    nullable: false
+  - name: customer_id
+    type: bigint
+    nullable: false
+  indexes: []
+  constraints: []
+- name: customer
+  table: customer
+  schema: public
+  columns:
+  - name: id
+    type: bigserial
+    pk: true
+    nullable: false
+  - name: email
+    type: varchar(255)
+    nullable: false
+    unique: true
+  indexes:
+  - name: ix_customer_email
+    columns:
+    - email
+    unique: true
+  constraints: []
+relations:
+- from: customer
+  to: address
+  cardinality: 1:N
+  fk:
+    column: customer_id
+    on_delete: cascade
+  concept_name: customer-has-many-addresses
+business_rules: []
+sources: []
+validation:
+  passed: true
+  errors: []
+  warnings: []
+  infos: []
