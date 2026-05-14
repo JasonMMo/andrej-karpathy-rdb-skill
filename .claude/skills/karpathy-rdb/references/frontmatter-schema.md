@@ -29,7 +29,7 @@ type: reference
 - name: <snake_case>           # 필수
   type: <pg type>              # 필수: bigserial, varchar(N), text, int, bool, timestamptz, numeric(p,s), jsonb, ...
   pk: <bool>                   # 기본 false
-  null: <bool>                 # 기본 true
+  nullable: <bool>             # 기본 true (YAML 'null' 키워드 충돌 회피를 위해 'nullable' 사용)
   unique: <bool>               # 기본 false
   default: <expr>              # SQL expression
   comment: <string>            # 선택
