@@ -39,7 +39,7 @@ git clone https://github.com/<owner>/andrej-karpathy-rdb-skill.git .karpathy-rdb
 3. 본문은 비워둠 — 내용 추측 금지
 
 ## Phase 7 — Verify + Hand-off
-1. `python <plugin_path>/scripts/rdb_index.py --lint <wiki_path>` 실행
+1. `python <plugin_path>/scripts/rdb_index.py lint <wiki_path>` 실행
 2. 에러 0개 확인
 3. `.karpathy-rdb-tmp/` 삭제
 4. 사용자에게 안내:
