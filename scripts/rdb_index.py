@@ -11,6 +11,24 @@ from typing import Tuple, Dict, Any, List
 import yaml
 
 
+def _coerce_legacy_null_key(node: Any) -> Any:
+    """YAML treats unquoted `null:` as the null literal (Python None).
+
+    Legacy wikis used `null: false` for column NOT NULL. Rewrite any
+    `{None: X}` key inside dicts/lists to `{'nullable': X}` so downstream
+    code sees the intended boolean. New wikis should use `nullable:` directly.
+    """
+    if isinstance(node, dict):
+        if None in node:
+            node["nullable"] = node.pop(None)
+        for v in node.values():
+            _coerce_legacy_null_key(v)
+    elif isinstance(node, list):
+        for item in node:
+            _coerce_legacy_null_key(item)
+    return node
+
+
 def parse_frontmatter(text: str) -> Tuple[Dict[str, Any], str]:
     """Parse YAML frontmatter from a markdown string.
 
@@ -29,6 +47,7 @@ def parse_frontmatter(text: str) -> Tuple[Dict[str, Any], str]:
         raise ValueError(f"invalid yaml: {e}") from e
     if not isinstance(fm, dict):
         raise ValueError("invalid yaml: frontmatter must be a mapping")
+    _coerce_legacy_null_key(fm)
     return fm, body.lstrip("\n")
 
 
