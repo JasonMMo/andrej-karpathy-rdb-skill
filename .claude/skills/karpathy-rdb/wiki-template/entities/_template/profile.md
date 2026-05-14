@@ -7,9 +7,9 @@ table: <table_name>                  # 물리 테이블명, 기본 = name
 schema: public                        # PostgreSQL 스키마
 status: draft                         # draft | reviewed | locked
 columns:
-  - { name: id, type: bigserial, pk: true, null: false }
-  - { name: created_at, type: timestamptz, null: false, default: now() }
-  - { name: updated_at, type: timestamptz, null: false, default: now() }
+  - { name: id, type: bigserial, pk: true, nullable: false }
+  - { name: created_at, type: timestamptz, nullable: false, default: now() }
+  - { name: updated_at, type: timestamptz, nullable: false, default: now() }
 indexes: []
 constraints: []
 relations: []
