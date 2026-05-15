@@ -20,15 +20,17 @@ Andrej Karpathy의 LLM Wiki 패턴 (markdown + frontmatter, no vector DB)을 관
 - `wiki/_schema.md`가 존재하는 프로젝트에서 RDB 관련 질문
 
 ## 워크플로우
-3개 슬래시 커맨드:
+4개 슬래시 커맨드:
 1. `/karpathy-rdb init <도메인명> [--preset <key>]` — wiki 골격 설치
 2. `/karpathy-rdb ingest [<프롬프트>|--file <path>]` — 요구사항을 wiki로 변환
 3. `/karpathy-rdb compile` — wiki → `_blueprint.yaml` + 검증
+4. `/karpathy-rdb contribute <도메인명>` — 현재 프로젝트의 신규 지식을 글로벌 카탈로그로 역류 (Karpathy 복리식 축적)
 
 ## 참조 문서 (이 디렉터리)
 - `protocols/01-init.md` — init 프로토콜 (Phase 1~6)
 - `protocols/02-ingest.md` — ingest 프로토콜
 - `protocols/03-compile.md` — compile 프로토콜 + V001~V010
+- `protocols/04-contribute.md` — contribute 프로토콜 (Phase 1~7, 글로벌 카탈로그 역류)
 - `references/frontmatter-schema.md` — entity/concept/domain frontmatter 스키마
 - `references/blueprint-spec.md` — `_blueprint.yaml` 명세 (2단계 계약)
 - `wiki-template/` — init이 복사할 wiki 골격
