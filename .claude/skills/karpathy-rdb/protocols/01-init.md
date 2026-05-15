@@ -21,7 +21,11 @@ version: 1
 ## Phase 3 — 도메인 커스터마이즈
 1. `wiki/domains/_template/` → `wiki/domains/<도메인명>/`로 복사·rename
 2. `_template/profile.md`의 placeholder를 도메인명으로 치환
-3. 선택한 preset이 있으면 `presets/<도메인>.seed.md`의 내용을 wiki에 적용 (entities/concepts 시드 페이지 생성)
+3. 선택한 preset이 있으면 seed.md를 다음 우선순위로 탐색하여 적용 (entities/concepts 시드 페이지 생성):
+   1. **글로벌 카탈로그**: `~/.karpathy-rdb/catalog/<도메인>.seed.md` — 이전 프로젝트에서 `/karpathy-rdb contribute`로 누적된 최신 시드
+   2. **플러그인 내장 preset**: `presets/<도메인>.seed.md` — 플러그인 출시 기본값
+   3. 둘 다 없으면 빈 wiki로 시작 (사용자에게 alert: "preset 없음 — ingest로 처음부터 정의 필요")
+4. 글로벌 카탈로그가 사용된 경우 사용자에게 알림: `~/.karpathy-rdb/catalog/<도메인>.seed.md v<n>이 적용됨 (이전 프로젝트의 누적 지식)`
 
 ## Phase 4 — `CLAUDE.md` 통합
 프로젝트 루트의 `CLAUDE.md`에 다음 섹션 추가 (없으면 파일 생성):
