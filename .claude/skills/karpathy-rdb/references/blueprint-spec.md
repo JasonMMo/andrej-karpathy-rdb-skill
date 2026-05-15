@@ -57,12 +57,27 @@ validation:
   to: <entity_name>
   cardinality: 1:1|1:N|N:M
   fk:
-    column: <column_name>
+    column: <column_name> | [<col_a>, <col_b>]   # v0.3+: list = composite FK
     on_delete: restrict|cascade|set_null
   concept_name: <string>             # 원천 concept (역추적용)
 ```
 
-N:M은 별도 join entity로 자동 변환 또는 explicit join entity 정의 둘 다 허용.
+N:M은 explicit junction entity로만 표현한다 (자동 변환 없음 — Karpathy 정신: 명시적·파일 기반).
+
+### 복합 PK / 복합 FK / N:M junction (v0.3+)
+
+- **복합 PK**: `entities[].columns[]` 중 둘 이상의 row가 `pk: true` 이면 자연 지원. Stage 2 가 단일 PK 일 때는 컬럼 인라인 `PRIMARY KEY`, 둘 이상일 때는 테이블 레벨 `PRIMARY KEY (a, b)` 로 emit.
+- **복합 FK**: `relations[].fk.column` 을 list 로 선언:
+  ```yaml
+  relations:
+    - from: child
+      to: parent
+      fk: { column: [a_id, b_id], on_delete: cascade }
+  ```
+  Stage 2 가 다중 컬럼 `FOREIGN KEY (a_id, b_id) REFERENCES parent(...)` 로 emit. 단일 컬럼은 string OR 1-원소 list 모두 허용 (하위 호환).
+- **N:M junction**: 사용자가 junction entity 를 직접 선언한다 — PK = 두 FK 컬럼의 합, 비-PK 컬럼은 메타 컬럼 (`created_at` 등) 만. 양쪽 부모 entity 는 각각 `relations: [{kind: has_many, to: <junction>, fk: <one_col>}]` 로 junction 을 가리킨다. Stage 1 의 V005 가 junction 패턴을 감지해 INFO 메시지 (`validation.infos[]`) 를 emit. ERROR/WARN 아님 — 사용자 의도를 정보로 기록.
+
+V005 판정 기준 (`scripts/rdb_index.py:is_junction_entity`): PK 컬럼이 2개 이상이고, PK 컬럼이 모두 outgoing FK 컬럼 집합에 포함되며, 비-PK 컬럼은 메타 컬럼 (`META_COLUMNS = {created_at, updated_at, created_by, updated_by}`) 뿐일 때.
 
 ### 입력(엔티티 frontmatter) → 출력(blueprint) 매핑
 
