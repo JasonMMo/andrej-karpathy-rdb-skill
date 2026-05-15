@@ -138,6 +138,95 @@ def validate_v003_naming(entity: Dict[str, Any]) -> List[dict]:
     return warnings
 
 
+PLUGIN_PRESETS_DIR = pathlib.Path(__file__).resolve().parent.parent / ".claude" / "skills" / "karpathy-rdb" / "presets"
+GLOBAL_CATALOG_DIR = pathlib.Path.home() / ".karpathy-rdb" / "catalog"
+
+
+def _parse_seed_entities(seed_text: str) -> Dict[str, Dict[str, Any]]:
+    """Extract entity yaml blocks from a seed.md file. Returns {name: entity_dict}."""
+    out: Dict[str, Dict[str, Any]] = {}
+    for match in re.finditer(r"```yaml\n(.*?)\n```", seed_text, re.DOTALL):
+        try:
+            block = yaml.safe_load(match.group(1))
+        except yaml.YAMLError:
+            continue
+        if isinstance(block, dict) and block.get("type") == "entity" and block.get("name"):
+            out[block["name"]] = block
+    return out
+
+
+def _load_catalog_for_domain(
+    domain: str,
+    plugin_presets_dir: pathlib.Path = PLUGIN_PRESETS_DIR,
+    global_catalog_dir: pathlib.Path = GLOBAL_CATALOG_DIR,
+) -> Dict[str, Dict[str, Any]]:
+    """Load entity definitions for a domain. Global catalog wins over plugin preset."""
+    global_path = global_catalog_dir / f"{domain}.seed.md"
+    if global_path.exists():
+        return _parse_seed_entities(global_path.read_text(encoding="utf-8"))
+    local_path = plugin_presets_dir / f"{domain}.seed.md"
+    if local_path.exists():
+        return _parse_seed_entities(local_path.read_text(encoding="utf-8"))
+    return {}
+
+
+def _merge_named(base_list: List[dict], override_list: List[dict]) -> List[dict]:
+    """Merge two lists of dicts by 'name' key. Override wins."""
+    merged: Dict[str, dict] = {}
+    for item in base_list or []:
+        if isinstance(item, dict) and item.get("name"):
+            merged[item["name"]] = item
+    for item in override_list or []:
+        if isinstance(item, dict) and item.get("name"):
+            merged[item["name"]] = item
+    return list(merged.values())
+
+
+def resolve_extends(
+    entities_fm: Dict[str, Dict[str, Any]],
+    plugin_presets_dir: pathlib.Path = PLUGIN_PRESETS_DIR,
+    global_catalog_dir: pathlib.Path = GLOBAL_CATALOG_DIR,
+) -> List[dict]:
+    """For each entity with `extends:`, merge catalog base into the entity in-place.
+
+    Resolution order: global catalog (`~/.karpathy-rdb/catalog/<domain>.seed.md`),
+    then plugin preset (`presets/<domain>.seed.md`). Searches all domains listed
+    on the entity's `domain:` field. Returns list of V004 errors for unresolved extends.
+
+    Merge rules: base provides columns/indexes/constraints; current entity overrides
+    by `name`. `extends` field is removed from entity after resolution.
+    """
+    errors: List[dict] = []
+    catalog_cache: Dict[str, Dict[str, Dict[str, Any]]] = {}
+    for ename, fm in entities_fm.items():
+        ext = fm.get("extends")
+        if not ext:
+            continue
+        domains = fm.get("domain") or []
+        if isinstance(domains, str):
+            domains = [domains]
+        base: Dict[str, Any] | None = None
+        for d in domains:
+            if d not in catalog_cache:
+                catalog_cache[d] = _load_catalog_for_domain(d, plugin_presets_dir, global_catalog_dir)
+            if ext in catalog_cache[d]:
+                base = catalog_cache[d][ext]
+                break
+        if base is None:
+            errors.append({
+                "code": "V004",
+                "level": "ERROR",
+                "target": f"entity:{ename}",
+                "message": f"extends: '{ext}' 카탈로그에서 미발견 (검색 도메인: {domains or '없음'})",
+            })
+            continue
+        fm["columns"] = _merge_named(base.get("columns") or [], fm.get("columns") or [])
+        fm["indexes"] = _merge_named(base.get("indexes") or [], fm.get("indexes") or [])
+        fm["constraints"] = _merge_named(base.get("constraints") or [], fm.get("constraints") or [])
+        fm.pop("extends", None)
+    return errors
+
+
 def _strip_wikilink(s: str) -> str:
     """Extract 'name' from '[[name]]'; return s unchanged if not wikilink."""
     if not s:
@@ -272,16 +361,7 @@ def _run_validators(entities: Dict[str, Dict], validation_rels: List[dict]) -> L
 def build_blueprint(wiki_dir: pathlib.Path) -> Dict[str, Any]:
     """Scan wiki/ and assemble a `_blueprint.yaml`-shaped dict per blueprint-spec.md."""
     data = load_wiki(wiki_dir)
-    entities_list = []
-    for name, fm in data["entities"].items():
-        entities_list.append({
-            "name": name,
-            "table": fm.get("table") or name,
-            "schema": fm.get("schema") or "public",
-            "columns": fm.get("columns") or [],
-            "indexes": fm.get("indexes") or [],
-            "constraints": fm.get("constraints") or [],
-        })
+    extends_errors = resolve_extends(data["entities"])
     domains_list = []
     for name, fm in data["domains"].items():
         domains_list.append({
@@ -296,8 +376,18 @@ def build_blueprint(wiki_dir: pathlib.Path) -> Dict[str, Any]:
                 derived.setdefault(d, []).append(ename)
         for dname, ents in derived.items():
             domains_list.append({"name": dname, "description": "", "entities": ents})
+    entities_list = []
+    for name, fm in data["entities"].items():
+        entities_list.append({
+            "name": name,
+            "table": fm.get("table") or name,
+            "schema": fm.get("schema") or "public",
+            "columns": fm.get("columns") or [],
+            "indexes": fm.get("indexes") or [],
+            "constraints": fm.get("constraints") or [],
+        })
     blueprint_rels, validation_rels = _collect_relations(data["entities"], data["concepts"])
-    validation_results = data["parse_errors"] + _run_validators(data["entities"], validation_rels)
+    validation_results = data["parse_errors"] + extends_errors + _run_validators(data["entities"], validation_rels)
     errs = [v for v in validation_results if v["level"] == "ERROR"]
     warns = [v for v in validation_results if v["level"] == "WARN"]
     infos = [v for v in validation_results if v["level"] == "INFO"]
