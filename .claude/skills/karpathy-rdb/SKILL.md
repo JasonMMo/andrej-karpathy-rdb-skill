@@ -39,6 +39,11 @@ Andrej Karpathy의 LLM Wiki 패턴 (markdown + frontmatter, no vector DB)을 관
 2. **사람 큐레이션, LLM 유지보수**: 사용자는 wiki만 본다. yaml은 자동 생성.
 3. **No vector DB, No RAG**: frontmatter + 컨텍스트 윈도우로 충분
 4. **2단계 계약 안정성**: `_blueprint.yaml`의 `version` 필드로 호환성 관리
+5. **지식 누적 (Karpathy 복리식)**: `wiki/learn-log.md`에 새로 발견한 entity/concept/rule을 누적. 향후 `/karpathy-rdb contribute`가 이를 읽어 글로벌 도메인 카탈로그로 역류시킨다 (v0.2+).
+
+## 두 종류의 로그 (역할 구분)
+- `wiki/_log.md` — **작업 이력**. "언제 ingest/compile을 했나". 형식: `YYYY-MM-DD HH:MM | <action> | <요약>`
+- `wiki/learn-log.md` — **지식 누적**. "이 프로젝트에서 새로 알게 된 것". 형식: `YYYY-MM-DD | <kind> | <name> | <domain> | <요약>`. `kind` ∈ {`new_entity`, `new_concept`, `new_rule`, `false_belief`, `contribute`}
 
 ## 파이프라인 위치
 business-fullstack-creater의 4단계 파이프라인:
