@@ -36,6 +36,7 @@ validation:
 - name: <snake_case>
   table: <string>
   schema: <string>
+  extends: <catalog_entity_name>     # 선택. 글로벌 카탈로그의 base entity
   columns:
     - { name, type, pk, null, unique, default, comment }
   indexes:
@@ -43,6 +44,12 @@ validation:
   constraints:
     - { name, check }                # CHECK constraint
 ```
+
+### `extends` 필드 (선택, v0.2+)
+- 같은 이름 또는 `extends`로 명시한 catalog entity가 글로벌 카탈로그(`~/.karpathy-rdb/catalog/<도메인>.seed.md`)에 있으면, base의 columns/indexes/constraints를 상속한 뒤 본 entity의 동명 필드로 override
+- 충돌 규칙: 컬럼 이름이 같으면 본 entity의 정의가 우선 (override)
+- 카탈로그에 base가 없으면 명시적 에러 (silent fallback 금지) — 사용자가 의도를 분명히 하도록
+- `extends` 필드 없는 기존 blueprint는 그대로 동작 (하위 호환). `version: 1` 유지.
 
 ## Relation 객체
 ```yaml
