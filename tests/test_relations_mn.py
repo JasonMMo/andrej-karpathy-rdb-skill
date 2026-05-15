@@ -17,3 +17,36 @@ def test_pk_columns_composite():
 def test_pk_columns_none():
     e = {"name": "x", "columns": [{"name": "n"}]}
     assert _pk_columns(e) == []
+
+
+from rdb_index import validate_v002_fk_targets
+
+
+def _entities(*decls):
+    return {name: {"name": name, "columns": cols} for name, cols in decls}
+
+
+def test_v002_composite_fk_all_columns_present():
+    entities = _entities(
+        ("address", [
+            {"name": "user_id", "pk": True},
+            {"name": "seq", "pk": True},
+            {"name": "city"},
+        ]),
+    )
+    rel = {"from": "user", "to": "address", "fk_column": ["user_id", "seq"]}
+    assert validate_v002_fk_targets(rel, entities) == []
+
+
+def test_v002_composite_fk_missing_column():
+    entities = _entities(
+        ("address", [
+            {"name": "user_id", "pk": True},
+            {"name": "city"},
+        ]),
+    )
+    rel = {"from": "user", "to": "address", "fk_column": ["user_id", "missing"]}
+    errs = validate_v002_fk_targets(rel, entities)
+    assert len(errs) == 1
+    assert errs[0]["code"] == "V002"
+    assert "missing" in errs[0]["message"]
