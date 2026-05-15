@@ -51,6 +51,11 @@ def parse_frontmatter(text: str) -> Tuple[Dict[str, Any], str]:
     return fm, body.lstrip("\n")
 
 
+def _pk_columns(entity):
+    """Return list of column names where pk: true. Empty if none."""
+    return [c.get("name") for c in (entity.get("columns") or []) if c.get("pk") is True]
+
+
 def validate_v001_pk_exists(entity: Dict[str, Any]) -> List[dict]:
     """V001: every entity must have at least one column with pk: true."""
     name = entity.get("name", "<unknown>")
