@@ -101,12 +101,15 @@ def validate_v002_fk_targets(relation: Dict[str, Any], entities: Dict[str, Dict]
         }]
     if fk_column:
         col_names = {c.get("name") for c in cols}
-        if fk_column not in col_names:
+        # fk_column may be string (single FK) or list (composite FK)
+        fk_cols = [fk_column] if isinstance(fk_column, str) else list(fk_column)
+        missing = [c for c in fk_cols if c not in col_names]
+        if missing:
             return [{
                 "code": "V002",
                 "level": "ERROR",
                 "target": target,
-                "message": f"fk_column '{fk_column}' 이(가) {to_name}에 존재하지 않음",
+                "message": f"fk_column {missing} 이(가) {to_name}에 존재하지 않음",
             }]
     return []
 
