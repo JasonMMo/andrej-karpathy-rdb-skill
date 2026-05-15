@@ -30,7 +30,13 @@ version: 1
 
 ## 후처리
 1. `_log.md`에 1줄 추가: `YYYY-MM-DD HH:MM | ingest | <요약 한 줄>`
-2. 사용자에게 결과 보고: 생성/갱신된 페이지 목록, 미해결 질문
+2. **`learn-log.md`에 신규 지식 1줄씩 추가** (이번 ingest로 새로 알게 된 것만):
+   - 신규 entity 생성 시: `YYYY-MM-DD | new_entity | <name> | <domain> | <컬럼 요약>`
+   - 신규 concept 생성 시: `YYYY-MM-DD | new_concept | <name> | <domain> | <관계 요약>`
+   - 신규 rule을 `rules.md`에 추가 시: `YYYY-MM-DD | new_rule | <id> | <domain> | <규칙 요약>`
+   - 반증된 통념을 `false-beliefs.md`에 추가 시: `YYYY-MM-DD | false_belief | <id> | <domain> | <반증 요약>`
+   - 변경(필드 추가/타입 변경 등)은 기록하지 않는다 — **신규 발견만**
+3. 사용자에게 결과 보고: 생성/갱신된 페이지 목록, 미해결 질문, learn-log에 추가된 항목 수
 
 ## 멱등성
 같은 source를 재ingest 시 sources/ 페이지는 갱신, entity/concept는 diff만 적용 (기존 정보 보존).
