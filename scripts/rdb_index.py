@@ -114,6 +114,35 @@ def validate_v002_fk_targets(relation: Dict[str, Any], entities: Dict[str, Dict]
     return []
 
 
+META_COLUMNS = frozenset(["created_at", "updated_at", "created_by", "updated_by"])
+
+
+def is_junction_entity(entity, fk_columns):
+    """Junction = all PK cols are FK cols AND non-PK cols are meta-only.
+
+    fk_columns: set of column names that participate in any outgoing FK.
+    """
+    pk = _pk_columns(entity)
+    if len(pk) < 2:
+        return False
+    if not all(c in fk_columns for c in pk):
+        return False
+    non_pk = [c.get("name") for c in entity.get("columns") or [] if not c.get("pk")]
+    return all(n in META_COLUMNS for n in non_pk)
+
+
+def validate_v005_junction(entity, fk_columns):
+    if not is_junction_entity(entity, fk_columns):
+        return []
+    pk = _pk_columns(entity)
+    return [{
+        "code": "V005",
+        "level": "INFO",
+        "target": f"entity:{entity.get('name')}",
+        "message": f"junction table 감지 — N:M 관계 (PK={pk})",
+    }]
+
+
 RESERVED_WORDS = frozenset([
     "user", "order", "group", "table", "schema", "type", "role", "name",
     "value", "key", "primary", "foreign", "references", "default", "check",
@@ -395,7 +424,19 @@ def build_blueprint(wiki_dir: pathlib.Path) -> Dict[str, Any]:
             "constraints": fm.get("constraints") or [],
         })
     blueprint_rels, validation_rels = _collect_relations(data["entities"], data["concepts"])
-    validation_results = data["parse_errors"] + extends_errors + _run_validators(data["entities"], validation_rels)
+    # V005: collect all FK columns used (string or list) to detect junction entities
+    fk_cols_used = set()
+    for r in blueprint_rels:
+        fk_obj = r.get("fk")
+        col = fk_obj.get("column") if isinstance(fk_obj, dict) else fk_obj
+        if isinstance(col, list):
+            fk_cols_used.update(col)
+        elif col:
+            fk_cols_used.add(col)
+    v005_results = []
+    for ename, fm in data["entities"].items():
+        v005_results.extend(validate_v005_junction(fm, fk_cols_used))
+    validation_results = data["parse_errors"] + extends_errors + _run_validators(data["entities"], validation_rels) + v005_results
     errs = [v for v in validation_results if v["level"] == "ERROR"]
     warns = [v for v in validation_results if v["level"] == "WARN"]
     infos = [v for v in validation_results if v["level"] == "INFO"]
