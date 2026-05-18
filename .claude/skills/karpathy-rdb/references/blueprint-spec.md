@@ -37,6 +37,7 @@ validation:
   table: <string>
   schema: <string>
   extends: <catalog_entity_name>     # 선택. 글로벌 카탈로그의 base entity
+  pattern: <D2|F1|C1|...>            # 선택 (v0.3+). Stage 4 form 패턴 hint
   columns:
     - { name, type, pk, null, unique, default, comment }
   indexes:
@@ -44,6 +45,13 @@ validation:
   constraints:
     - { name, check }                # CHECK constraint
 ```
+
+### `pattern` 필드 (선택, v0.3+)
+- Stage 4 (rdb-nexacro) 가 form 렌더링에 사용하는 패턴 이름 (예: `D2` detail-2-tier, `F1` form-1-tier, `C1` card-1-tier)
+- 카탈로그 위치: Stage 4 번들 `<repo>/.claude/skills/karpathy-rdb-nexacro/patterns/<name>/` → 글로벌 fallback `~/.karpathy-rdb/catalog/patterns/<name>/`. 미발견 시 명시적 에러 (`PatternNotFoundError`)
+- 미지정 entity 는 Stage 4 CLI `--default-pattern` (기본 `D2`) 으로 처리
+- Stage 2 (DDL) / Stage 3 (MyBatis) 는 이 필드를 무시 (informational only)
+- `version: 1` 유지 (선택 필드 추가는 호환 변경)
 
 ### `extends` 필드 (선택, v0.2+)
 - 같은 이름 또는 `extends`로 명시한 catalog entity가 글로벌 카탈로그(`~/.karpathy-rdb/catalog/<도메인>.seed.md`)에 있으면, base의 columns/indexes/constraints를 상속한 뒤 본 entity의 동명 필드로 override
