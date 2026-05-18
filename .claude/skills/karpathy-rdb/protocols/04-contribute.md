@@ -72,3 +72,16 @@ version: 1
 
 ## 멱등성
 같은 항목을 다시 contribute 시도 시: 이미 카탈로그에 있는 항목은 자동 skip(중복 방지). 사용자에게 "변경 없음, 카탈로그 v 그대로" 보고.
+
+## 패턴 기여 (v0.3+)
+
+`/karpathy-rdb contribute --kind pattern <pattern-name>` 으로 Stage 4 form pattern 디렉터리를 글로벌 카탈로그로 승격:
+
+1. 로컬 패턴 위치 확인: `<stage4-repo>/.claude/skills/karpathy-rdb-nexacro/patterns/<name>/` (manifest.yaml + form.xfdl.j2 + README.md)
+2. 글로벌 대상 위치: `~/.karpathy-rdb/catalog/patterns/<name>/`. 없으면 신규 생성.
+3. 두 경로의 디렉터리 diff 표시 (신규/변경 파일 강조)
+4. 사용자에게 항목별 confirm: **"이 pattern 이 다른 프로젝트에도 일반화 가능합니까? (yes/no/skip)"**
+5. `yes` 항목만 디렉터리에 복사. `manifest.yaml` 의 `version` 증분 (없으면 1 부여).
+6. `wiki/_log.md` 와 `wiki/learn-log.md` 에 `pattern-contribute` 이벤트 1줄 기록 (`YYYY-MM-DD | pattern-contribute | <name> | - | v<old>→v<new>`)
+
+**Karpathy 정신 유지**: 자동 머지 금지 (entity contribute 와 동일 규칙), 디렉터리 단위 파일 기반, LLM 추론/벡터 검색 없음.
