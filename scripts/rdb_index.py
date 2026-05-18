@@ -415,14 +415,17 @@ def build_blueprint(wiki_dir: pathlib.Path) -> Dict[str, Any]:
             domains_list.append({"name": dname, "description": "", "entities": ents})
     entities_list = []
     for name, fm in data["entities"].items():
-        entities_list.append({
+        entry = {
             "name": name,
             "table": fm.get("table") or name,
             "schema": fm.get("schema") or "public",
             "columns": fm.get("columns") or [],
             "indexes": fm.get("indexes") or [],
             "constraints": fm.get("constraints") or [],
-        })
+        }
+        if fm.get("pattern"):
+            entry["pattern"] = fm["pattern"]
+        entities_list.append(entry)
     blueprint_rels, validation_rels = _collect_relations(data["entities"], data["concepts"])
     # V005: collect all FK columns used (string or list) to detect junction entities
     fk_cols_used = set()
