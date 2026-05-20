@@ -59,6 +59,32 @@ validation:
 - 카탈로그에 base가 없으면 명시적 에러 (silent fallback 금지) — 사용자가 의도를 분명히 하도록
 - `extends` 필드 없는 기존 blueprint는 그대로 동작 (하위 호환). `version: 1` 유지.
 
+## `shell` 객체 (선택, Growth-16 / v0.4+)
+
+Stage 5 standalone shell adapter (`--shell-mode MDI|SDI`) 가 소비하는 프로젝트-레벨 옵션. 누락 시 shell adapter 가 합리적 기본을 적용.
+
+```yaml
+shell:
+  branding:
+    app_id: packageN              # nexacro 패키지 식별자
+    app_title: "배송관리"
+    brand_text: "배송관리"
+    menu_title: "메뉴"
+    service_base_url: ./services/shipping/
+  login:                          # 생략 시 비로그인 부트스트랩
+    title: 로그인
+  menu:                           # 미지정 시 blueprint.entities 로부터 자동 파생
+    - { id: BIZ_SHIPPING_DELIVERY, group: BIZ_SHIPPING, label: 배송, url: shipping::delivery.xfdl }
+  extra_services: []              # typedefinition.xml 의 추가 <Service .../>
+  frame_overrides:                # per-file 3-tier 우선순위 최상단
+    frame_top: ./local/frame_top.xfdl.j2
+  manifest_version: 1             # 미지정 시 최신
+```
+
+- Stage 1~4 는 이 필드를 무시 (Stage 5 전용; informational only)
+- `shell.menu` 가 비어있으면 adapter 는 entities 의 `label`/`slug` 로 `BIZ_<DOMAIN>_<ENTITY>` row 를 자동 생성하고 frameLeft 의 `ds_menu` 를 권위적 소스로 채운다 (per-domain overlay 의 `dsSample` 주입은 soft-warn 으로 우회)
+- `version: 1` 유지 (선택 필드 추가는 호환 변경)
+
 ## Relation 객체
 ```yaml
 - from: <entity_name>
