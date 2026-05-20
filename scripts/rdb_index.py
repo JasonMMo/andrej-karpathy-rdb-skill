@@ -337,7 +337,12 @@ def load_wiki(wiki_dir: pathlib.Path) -> Dict[str, Any]:
         name = fm.get("name")
         if name:
             out["domains"][name] = fm
-    for md in sorted(wiki_dir.glob("concepts/*.md")):
+    # concepts may live as flat files (concepts/<name>.md) OR
+    # dir-per-concept (concepts/<name>/profile.md, written by _init_wiki_from_preset).
+    concept_files = sorted(wiki_dir.glob("concepts/*.md")) + sorted(
+        wiki_dir.glob("concepts/*/profile.md")
+    )
+    for md in concept_files:
         try:
             fm, _ = parse_frontmatter(md.read_text(encoding="utf-8"))
         except ValueError as e:
@@ -346,7 +351,9 @@ def load_wiki(wiki_dir: pathlib.Path) -> Dict[str, Any]:
                 "target": str(md), "message": str(e),
             })
             continue
-        cname = fm.get("name") or md.stem
+        cname = fm.get("name") or (
+            md.parent.name if md.name == "profile.md" else md.stem
+        )
         out["concepts"][cname] = fm
     sid = 1
     for md in sorted(wiki_dir.glob("sources/*.md")):
@@ -372,6 +379,7 @@ def _collect_relations(entities: Dict[str, Dict], concepts: Dict[str, Dict]) -> 
     """
     blueprint_rels: List[dict] = []
     validation_rels: List[dict] = []
+    seen: set = set()  # (from, to) pairs already collected from entity-side
     for ename, fm in entities.items():
         for rel in fm.get("relations") or []:
             to = rel.get("to")
@@ -398,6 +406,44 @@ def _collect_relations(entities: Dict[str, Dict], concepts: Dict[str, Dict]) -> 
                 "concept_name": concept_name,
             })
             validation_rels.append({"from": ename, "to": to, "fk_column": fk_col, "kind": kind})
+            seen.add((ename, to))
+    # Fallback: derive relations from concept blocks for entity pairs not yet
+    # collected. Lets seeds declare FK once in concepts (Karpathy pattern)
+    # without re-stating it on every entity. (Growth-21b-4)
+    for cname, cfm in concepts.items():
+        if (cfm.get("kind") or "").lower() != "relation":
+            continue
+        c_from = cfm.get("from")
+        c_to = cfm.get("to")
+        fk_col = cfm.get("fk_column")
+        if not (c_from and c_to and fk_col):
+            continue
+        if (c_from, c_to) in seen:
+            continue
+        if c_from not in entities:
+            continue
+        if c_to not in entities:
+            # Cross-domain target not in this scaffold; FK column persists
+            # as plain bigint but no constraint can be emitted.
+            continue
+        raw_card = cfm.get("cardinality")
+        # YAML 1.1 sexagesimal: "1:1" parses as int 61. Normalize back.
+        if isinstance(raw_card, int) and raw_card == 61:
+            raw_card = "1:1"
+        cardinality = str(raw_card) if raw_card is not None else "1:N"
+        on_delete = cfm.get("on_delete") or "restrict"
+        _CARD_KIND = {"N:1": "belongs_to", "1:N": "has_many",
+                      "1:1": "has_one", "N:M": "many_to_many"}
+        kind = _CARD_KIND.get(cardinality, "belongs_to")
+        blueprint_rels.append({
+            "from": c_from,
+            "to": c_to,
+            "cardinality": cardinality,
+            "fk": {"column": fk_col, "on_delete": on_delete},
+            "concept_name": cname,
+        })
+        validation_rels.append({"from": c_from, "to": c_to, "fk_column": fk_col, "kind": kind})
+        seen.add((c_from, c_to))
     return blueprint_rels, validation_rels
 
 
