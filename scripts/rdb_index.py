@@ -71,18 +71,25 @@ def validate_v001_pk_exists(entity: Dict[str, Any]) -> List[dict]:
     }]
 
 
+_FK_ON_FROM_KINDS = frozenset(["belongs_to", "many_to_one"])
+_FK_ON_TO_KINDS = frozenset(["has_many", "has_one", "one_to_many", "one_to_one"])
+
+
 def validate_v002_fk_targets(relation: Dict[str, Any], entities: Dict[str, Dict]) -> List[dict]:
     """V002: relation FK must be sane.
 
     - `to` entity must exist
     - `to` entity must declare a PK (the relation references it)
-    - if `fk_column` is provided, it must be a column on the `to` entity
-      (has_many/belongs_to relations declared on the 1-side place the FK column
-      on the N-side, i.e. on `to`)
+    - if `fk_column` is provided, it must live on the correct side:
+        * belongs_to / many_to_one → FK on FROM (declaring entity is N-side)
+        * has_many / has_one / one_to_many / one_to_one → FK on TO (child holds FK)
+        * many_to_many → skip column check (junction owns the FKs)
+        * unknown/empty kind → default to TO (backwards compatible)
     """
     to_name = relation.get("to")
     from_name = relation.get("from")
     fk_column = relation.get("fk_column")
+    kind = (relation.get("kind") or "").lower()
     target = f"relation:{from_name}->{to_name}"
     if to_name not in entities:
         return [{
@@ -91,26 +98,35 @@ def validate_v002_fk_targets(relation: Dict[str, Any], entities: Dict[str, Dict]
             "target": target,
             "message": f"참조 entity 미존재: {to_name}",
         }]
-    cols = entities[to_name].get("columns") or []
-    if not any(c.get("pk") is True for c in cols):
+    to_cols = entities[to_name].get("columns") or []
+    if not any(c.get("pk") is True for c in to_cols):
         return [{
             "code": "V002",
             "level": "ERROR",
             "target": target,
             "message": f"참조 entity {to_name}에 PK 없음",
         }]
-    if fk_column:
-        col_names = {c.get("name") for c in cols}
-        # fk_column may be string (single FK) or list (composite FK)
-        fk_cols = [fk_column] if isinstance(fk_column, str) else list(fk_column)
-        missing = [c for c in fk_cols if c not in col_names]
-        if missing:
-            return [{
-                "code": "V002",
-                "level": "ERROR",
-                "target": target,
-                "message": f"fk_column {missing} 이(가) {to_name}에 존재하지 않음",
-            }]
+    if not fk_column or kind == "many_to_many":
+        return []
+
+    if kind in _FK_ON_FROM_KINDS:
+        owner_name = from_name
+        owner_cols = (entities.get(from_name) or {}).get("columns") or []
+    else:
+        # has_many / has_one / one_to_* / unknown → FK on TO (child)
+        owner_name = to_name
+        owner_cols = to_cols
+
+    col_names = {c.get("name") for c in owner_cols}
+    fk_cols = [fk_column] if isinstance(fk_column, str) else list(fk_column)
+    missing = [c for c in fk_cols if c not in col_names]
+    if missing:
+        return [{
+            "code": "V002",
+            "level": "ERROR",
+            "target": target,
+            "message": f"fk_column {missing} 이(가) {owner_name}에 존재하지 않음",
+        }]
     return []
 
 
@@ -381,7 +397,7 @@ def _collect_relations(entities: Dict[str, Dict], concepts: Dict[str, Dict]) -> 
                 "fk": {"column": fk_col, "on_delete": on_delete},
                 "concept_name": concept_name,
             })
-            validation_rels.append({"from": ename, "to": to, "fk_column": fk_col})
+            validation_rels.append({"from": ename, "to": to, "fk_column": fk_col, "kind": kind})
     return blueprint_rels, validation_rels
 
 
