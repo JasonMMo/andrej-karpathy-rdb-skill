@@ -441,6 +441,9 @@ def build_blueprint(wiki_dir: pathlib.Path) -> Dict[str, Any]:
         }
         if fm.get("pattern"):
             entry["pattern"] = fm["pattern"]
+        label_ko = fm.get("label_ko") or fm.get("display")
+        if label_ko:
+            entry["label_ko"] = label_ko
         entities_list.append(entry)
     blueprint_rels, validation_rels = _collect_relations(data["entities"], data["concepts"])
     # V005: collect all FK columns used (string or list) to detect junction entities
