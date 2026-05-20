@@ -38,6 +38,7 @@ validation:
   schema: <string>
   extends: <catalog_entity_name>     # 선택. 글로벌 카탈로그의 base entity
   pattern: <D2|F1|C1|...>            # 선택 (v0.3+). Stage 4 form 패턴 hint
+  label_ko: <string>                 # 선택 (v0.4+). 한국어 표시명. seed 의 `display` 와도 호환
   columns:
     - { name, type, pk, null, unique, default, comment }
   indexes:
