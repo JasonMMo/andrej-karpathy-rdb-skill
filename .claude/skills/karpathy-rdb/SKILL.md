@@ -34,7 +34,7 @@ Andrej Karpathy의 LLM Wiki 패턴 (markdown + frontmatter, no vector DB)을 관
 - `references/frontmatter-schema.md` — entity/concept/domain frontmatter 스키마
 - `references/blueprint-spec.md` — `_blueprint.yaml` 명세 (2단계 계약)
 - `wiki-template/` — init이 복사할 wiki 골격
-- `presets/` — 도메인 프리셋 (11개: 결재/게시판/고객관리/공통코드/권한관리/알림/인사관리/재고관리/재무관리/주문관리/파일관리)
+- `presets/` — 도메인 프리셋 (12개: 결재/게시판/고객관리/공통코드/권한관리/배송관리/알림/인사관리/재고관리/재무관리/주문관리/파일관리)
 - `presets/INDEX.md` — 프리셋 매칭 인덱스. init 시 입력 도메인명과 비교하여 유사 후보 3개를 자동 추천 (v0.3.x C-2)
 
 ## 핵심 원칙
