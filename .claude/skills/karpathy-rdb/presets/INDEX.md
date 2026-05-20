@@ -13,7 +13,7 @@ purpose: |
 
 # Preset Catalog Index
 
-13개 시드 도메인의 매칭 메타데이터. 항목은 `한글명`(파일명과 동일) 기준 정렬.
+14개 시드 도메인의 매칭 메타데이터. 항목은 `한글명`(파일명과 동일) 기준 정렬.
 
 ## 결재
 - aliases: 승인, 전자결재, 결재라인, 결재시스템, approval, workflow, approval-line
@@ -32,6 +32,12 @@ purpose: |
 - keywords: 고객, 연락처, 주소록, 고객분류, 컨택로그, 상담이력
 - entities: customer, customer_category, address, contact_log
 - 한 줄: B2C/B2B 고객 + 다중 주소 + 응대 이력 + 분류 트리
+
+## 공급망
+- aliases: SCM, 공급, 발주, 구매, 매입, 입고, 공급사, supply-chain, procurement, purchase, scm, supplier
+- keywords: 공급업체, 발주서, 발주, 구매, 입고, 검수, 매입, 리드타임, 공급, lot, expiry
+- entities: supplier, supplier_contact, purchase_order, purchase_order_item, goods_receipt, goods_receipt_item
+- 한 줄: 공급업체·발주(MD+workflow)·입고(RO ledger) + 재고관리/권한관리 cross-domain FK (sku/warehouse/requester)
 
 ## 공통코드
 - aliases: 코드, 코드관리, 시스템코드, 공통, code, common-code, lookup
