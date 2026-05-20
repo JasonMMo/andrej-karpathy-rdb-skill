@@ -1,7 +1,7 @@
 ---
 type: protocol
 protocol: contribute
-version: 1
+version: 2
 ---
 
 # Protocol 04 — Contribute
@@ -64,7 +64,8 @@ version: 1
 ## Phase 7 — 후처리
 1. `wiki/_log.md`에 1줄: `YYYY-MM-DD HH:MM | contribute | <도메인> v<old>→v<new>: <건수> 항목`
 2. `wiki/learn-log.md`에 1줄: `YYYY-MM-DD | contribute | <도메인> | <도메인> | v<old>→v<new>, +<n> entities, +<m> concepts, +<k> rules`
-3. 사용자에게 보고:
+3. **`presets/INDEX.md` (또는 글로벌 동급 인덱스) 갱신** — 신규 도메인이면 항목 추가, 기존 도메인이면 aliases/keywords/entities/한 줄을 갱신 (v0.3.x C-2). 인덱스가 갱신되지 않으면 다음 프로젝트의 init 추천이 새 지식을 모름.
+4. 사용자에게 보고:
    - 카탈로그 파일 경로
    - 새 version
    - 거부(`no`) / 보류(`skip`) 항목 수
