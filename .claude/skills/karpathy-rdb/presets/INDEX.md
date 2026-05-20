@@ -1,6 +1,6 @@
 ---
 type: preset-index
-version: 1
+version: 2
 purpose: |
   `/karpathy-rdb init <도메인>` 시 LLM이 사용자 입력과 매칭하여 유사 도메인을
   추천하는 데 사용. 정확 매치가 없을 때 aliases/keywords/entities/한줄 정의를
@@ -13,7 +13,7 @@ purpose: |
 
 # Preset Catalog Index
 
-11개 시드 도메인의 매칭 메타데이터. 항목은 `한글명`(파일명과 동일) 기준 정렬.
+12개 시드 도메인의 매칭 메타데이터. 항목은 `한글명`(파일명과 동일) 기준 정렬.
 
 ## 결재
 - aliases: 승인, 전자결재, 결재라인, 결재시스템, approval, workflow, approval-line
@@ -44,6 +44,12 @@ purpose: |
 - keywords: 사용자, 역할, 권한, 메뉴권한, 데이터권한, 정책
 - entities: app_user, role, permission, user_role, role_permission
 - 한 줄: RBAC 기본 — 사용자·역할·권한 N:M + 메뉴/데이터 권한 분리
+
+## 배송관리
+- aliases: 배송, 출고, 물류, 택배, 운송, delivery, shipping, logistics, courier
+- keywords: 배송, 택배사, 추적, tracking, 출고, 배송상태, 분할배송, 반품
+- entities: courier, delivery, delivery_item, delivery_tracking
+- 한 줄: 주문 출고 이후 물류 — 택배사·추적이력(RO) + 상태머신(pending→picked→in_transit→delivered)
 
 ## 알림
 - aliases: notification, message, push, 알람, 알람센터, 메시지
