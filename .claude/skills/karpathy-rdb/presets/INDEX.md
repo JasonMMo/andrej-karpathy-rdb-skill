@@ -13,7 +13,7 @@ purpose: |
 
 # Preset Catalog Index
 
-12개 시드 도메인의 매칭 메타데이터. 항목은 `한글명`(파일명과 동일) 기준 정렬.
+13개 시드 도메인의 매칭 메타데이터. 항목은 `한글명`(파일명과 동일) 기준 정렬.
 
 ## 결재
 - aliases: 승인, 전자결재, 결재라인, 결재시스템, approval, workflow, approval-line
@@ -56,6 +56,12 @@ purpose: |
 - keywords: 알림, 푸시, SMS, 이메일, 인앱, 알림설정, 수신거부
 - entities: notification_template, notification, notification_log, notification_preference
 - 한 줄: 다채널 발송(SMS/이메일/인앱/push) + 템플릿 + 수신선호 + 로그
+
+## 영업관리
+- aliases: CRM, sales, 영업, 영업기회, 잠재고객, lead, opportunity, pipeline, sales-pipeline
+- keywords: 잠재고객, 영업기회, 단계, 영업활동, 거래처담당자, 파이프라인, 확률, 예상매출, 전환, 마감
+- entities: lead, opportunity, sales_activity, contact_person
+- 한 줄: lead→opportunity→activity 파이프라인 + 거래처 담당자 + 권한관리/고객관리와 cross-domain FK (RBAC ownership)
 
 ## 인사관리
 - aliases: HR, HRM, 직원, 직원관리, 근태, 휴가, 인사, human-resources
