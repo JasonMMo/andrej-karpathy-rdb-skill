@@ -82,10 +82,10 @@ purpose: |
 - 한 줄: 다창고 재고 + 입출고/이동 이력(RO) + 안전재고
 
 ## 재무관리
-- aliases: 회계, 재무, 거래, 분개, 원장, finance, accounting, ledger
-- keywords: 분개, 거래, 차변, 대변, 원장, 계정과목, 재무제표
-- entities: account, journal_entry, journal_line, fiscal_period
-- 한 줄: 복식부기 분개·원장 + 계정과목 트리 + 회계기간
+- aliases: 회계, 재무, 거래, 분개, 원장, 전표, finance, accounting, ledger, journal
+- keywords: 분개, 전표, 거래, 차변, 대변, 원장, 계정과목, 재무제표, 회계기간, 마감, 복식부기, double-entry
+- entities: account, fiscal_period, journal_entry, ledger_entry
+- 한 줄: 복식부기 — 분개전표(MD 헤더) + 분개라인(RO) + 계정과목 트리 + 회계기간/마감 (Growth-26)
 
 ## 주문관리
 - aliases: 주문, 주문서, 발주, 판매, 결제, order, sales, purchase, payment
