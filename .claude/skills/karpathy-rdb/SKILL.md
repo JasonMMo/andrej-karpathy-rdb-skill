@@ -29,6 +29,9 @@ Andrej Karpathy의 LLM Wiki 패턴 (markdown + frontmatter, no vector DB)을 관
 ## 추가 스크립트 (v0.6+)
 - `scripts/meta_extract.py extract --project <p>...` — 복수 프로젝트의 `wiki/learn-log.md` 횡단 → `~/.karpathy-rdb/catalog/meta/<도메인>_meta.md` 생성. **명시 호출 전용**, 자동 머지 없음. 진입 게이트: 실 프로젝트 ≥3개 (그 미만은 SKIP=PASS). 알리먼트 리뷰 §7.1.
 
+## 유사 도메인 추천 (v0.6 C-2)
+init 시 `--preset` 미지정이면 `protocols/01-init.md` Phase 1 Q2 의 3단계 fallback 으로 추천: (1) 로컬 `presets/INDEX.md` 매칭 → (2) `~/.karpathy-rdb/catalog/` 글로벌 frontmatter 추가 스캔 → (3) `~/.karpathy-rdb/catalog/meta/<도메인>_meta.md` (C-1 출력) 컨텍스트 부착. 글로벌/메타 부재 시 단계 SKIP=PASS. 벡터 DB 사용 금지 — frontmatter + 컨텍스트 윈도우. 알리먼트 리뷰 §7.2.
+
 ## 참조 문서 (이 디렉터리)
 - `protocols/01-init.md` — init 프로토콜 (Phase 1~6)
 - `protocols/02-ingest.md` — ingest 프로토콜
