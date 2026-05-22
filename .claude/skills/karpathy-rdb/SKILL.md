@@ -55,3 +55,13 @@ business-fullstack-creater의 4단계 파이프라인:
 2. Backend — `_blueprint.yaml` → DDL
 3. Middle — `/nexacro-fullstack-starter`
 4. Frontend — `/nexacro-claude-skills`
+
+## Ownership & Self-Check (Phase A — 2026-05-22)
+
+이 skill 은 **business-fullstack-creater 5축 책임표의 `skill (Stage 1)` 축**을 담당. 활동 뷰는 `business-fullstack-creater/learn-log.md` §0.
+
+- **깊이 누적 위치**: `presets/*.seed.md` (현 12개 도메인) + `protocols/` (init/ingest/compile/contribute) + `wiki-template/`
+- **단위 테스트**: `tests/` (pytest)
+- **누적 트랩 (0)**: 없음 (wiki 큐레이션 레이어)
+- **미해결 환류**: 없음
+- **Self-check (Growth 종료 시)**: 새 도메인 wiki 큐레이션이 발생했다면 `/karpathy-rdb contribute` 로 글로벌 카탈로그 역류 + `business-fullstack-creater/learn-log.md` §0 skill 행 (필요 시) + §2 (도메인) 갱신했는가?
