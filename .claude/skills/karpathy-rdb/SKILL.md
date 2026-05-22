@@ -26,6 +26,9 @@ Andrej Karpathy의 LLM Wiki 패턴 (markdown + frontmatter, no vector DB)을 관
 3. `/karpathy-rdb compile` — wiki → `_blueprint.yaml` + 검증
 4. `/karpathy-rdb contribute <도메인명>` — 현재 프로젝트의 신규 지식을 글로벌 카탈로그로 역류 (Karpathy 복리식 축적)
 
+## 추가 스크립트 (v0.6+)
+- `scripts/meta_extract.py extract --project <p>...` — 복수 프로젝트의 `wiki/learn-log.md` 횡단 → `~/.karpathy-rdb/catalog/meta/<도메인>_meta.md` 생성. **명시 호출 전용**, 자동 머지 없음. 진입 게이트: 실 프로젝트 ≥3개 (그 미만은 SKIP=PASS). 알리먼트 리뷰 §7.1.
+
 ## 참조 문서 (이 디렉터리)
 - `protocols/01-init.md` — init 프로토콜 (Phase 1~6)
 - `protocols/02-ingest.md` — ingest 프로토콜
